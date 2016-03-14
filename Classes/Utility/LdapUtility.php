@@ -287,6 +287,10 @@ class LdapUtility
             return false;
         }
 
+        // Added by Torsten
+        $filter = str_replace('\#', '#', $filter);
+        $filter = str_replace('\,', ',', $filter);
+
         if ($this->connection) {
             $connections = $this->connection;
             if (is_array($baseDn)) {
