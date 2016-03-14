@@ -22,6 +22,7 @@ CREATE TABLE tx_igldapssoauth_config (
 	ldap_ssl tinyint(4) DEFAULT '0' NOT NULL,
 	ldap_binddn tinytext NOT NULL,
 	ldap_password varchar(255) DEFAULT '' NOT NULL,
+	ldap_sid tinyint(4) DEFAULT '0' NOT NULL,
 	group_membership tinyint(4) DEFAULT '0' NOT NULL,
 	be_users_basedn tinytext NOT NULL,
 	be_users_filter text NOT NULL,
@@ -50,7 +51,8 @@ CREATE TABLE tx_igldapssoauth_config (
 # Table structure for table 'be_groups'
 #
 CREATE TABLE be_groups (
-	tx_igldapssoauth_dn tinytext NOT NULL
+	tx_igldapssoauth_dn tinytext NOT NULL,
+	tx_igldapssoauth_sid tinytext NOT NULL
 );
 
 #
@@ -58,14 +60,16 @@ CREATE TABLE be_groups (
 #
 CREATE TABLE be_users (
 	tx_igldapssoauth_dn tinytext NOT NULL,
-	tx_igldapssoauth_id int(11) unsigned DEFAULT '0' NOT NULL
+	tx_igldapssoauth_id int(11) unsigned DEFAULT '0' NOT NULL,
+	tx_igldapssoauth_sid tinytext NOT NULL
 );
 
 #
 # Table structure for table 'fe_groups'
 #
 CREATE TABLE fe_groups (
-	tx_igldapssoauth_dn tinytext NOT NULL
+	tx_igldapssoauth_dn tinytext NOT NULL,
+	tx_igldapssoauth_sid tinytext NOT NULL
 );
 
 #
@@ -73,5 +77,6 @@ CREATE TABLE fe_groups (
 #
 CREATE TABLE fe_users (
 	tx_igldapssoauth_dn tinytext NOT NULL,
-	tx_igldapssoauth_id int(11) unsigned DEFAULT '0' NOT NULL
+	tx_igldapssoauth_id int(11) unsigned DEFAULT '0' NOT NULL,
+	tx_igldapssoauth_sid tinytext NOT NULL
 );

@@ -55,6 +55,11 @@ class Configuration
     protected $ldapProtocol;
 
     /**
+     * @var bool
+     */
+    protected $ldapSid;
+
+    /**
      * @var string
      */
     protected $ldapHost;
@@ -457,4 +462,11 @@ class Configuration
         return get_class($this) . ':' . (string)$this->uid;
     }
 
+    /**
+     * @return bool
+     */
+    public function isLdapSid()
+    {
+        return $this->ldapSid;
+    }
 }

@@ -76,10 +76,11 @@ class Typo3UserRepository
      * @param int|null $pid
      * @param string $username
      * @param string $dn
+     * @param string 4sid
      * @return array Array of user records
      * @throws InvalidUserTableException
      */
-    public static function fetch($table, $uid = 0, $pid = null, $username = null, $dn = null)
+    public static function fetch($table, $uid = 0, $pid = null, $username = null, $dn = null, $sid = null)
     {
         if (!GeneralUtility::inList('be_users,fe_users', $table)) {
             throw new InvalidUserTableException('Invalid table "' . $table . '"', 1404891636);
@@ -94,6 +95,22 @@ class Typo3UserRepository
                 '*',
                 $table,
                 'uid=' . (int)$uid
+            );
+        } elseif (!empty($sid)) {
+            $where = '(tx_igldapssoauth_sid=' . $databaseConnection->fullQuoteStr($sid, $table);
+            if (!empty($dn)) {
+                $where .= ' OR (tx_igldapssoauth_sid="" AND tx_igldapssoauth_dn=' . $databaseConnection->fullQuoteStr($dn, $table) . ')';
+
+                if (!empty($username)) {
+                    $where .= ' OR (tx_igldapssoauth_sid="" AND username=' . $databaseConnection->fullQuoteStr($username, $table) . ')';
+                }
+            }
+            $where .= ')' . ($pid ? ' AND pid=' . (int)$pid: '');
+
+            $users = $databaseConnection->exec_SELECTgetRows(
+                '*',
+                $table,
+                $where
             );
         } elseif (!empty($dn)) {
             // Search with DN (or fall back to username) and pid

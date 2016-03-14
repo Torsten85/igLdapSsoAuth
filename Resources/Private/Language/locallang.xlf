@@ -84,6 +84,9 @@
 			<trans-unit id="module_status.configuration.ssl">
 				<source>Use SSL</source>
 			</trans-unit>
+			<trans-unit id="module_status.configuration.sid">
+				<source>Use SID for identification</source>
+			</trans-unit>
 			<trans-unit id="module_status.configuration.binddn">
 				<source>Bind DN</source>
 			</trans-unit>

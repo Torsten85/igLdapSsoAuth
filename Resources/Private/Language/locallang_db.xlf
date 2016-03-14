@@ -140,6 +140,9 @@ Current value for backend is: "%s"]]></source>
 			<trans-unit id="tx_igldapssoauth_config.ldap_password">
 				<source>Password:</source>
 			</trans-unit>
+			<trans-unit id="tx_igldapssoauth_config.ldap_sid">
+				<source>Use objectSid for identification:</source>
+			</trans-unit>
 
 			<trans-unit id="tx_igldapssoauth_config.group_membership">
 				<source>Relation between groups and users:</source>

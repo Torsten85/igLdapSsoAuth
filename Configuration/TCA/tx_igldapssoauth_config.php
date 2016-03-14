@@ -20,7 +20,7 @@ return array(
     'interface' => array(
         'showRecordFieldList' => 'hidden, name, domains,
                         ldap_server, ldap_protocol, ldap_charset, ldap_host, ldap_port, ldap_tls, ldap_ssl, ldap_binddn,
-                        ldap_password, group_membership,
+                        ldap_password, ldap_sid, group_membership,
                         be_users_basedn, be_users_filter, be_users_mapping,
                         be_groups_basedn, be_groups_filter, be_groups_mapping, be_groups_required, be_groups_assigned,
                         be_groups_admin,
@@ -48,7 +48,7 @@ return array(
     ),
     'palettes' => array(
         '1' => array(
-            'showitem' => 'ldap_protocol, ldap_charset'
+            'showitem' => 'ldap_protocol, ldap_charset, ldap_sid'
         ),
         'connection' => array(
             'showitem' => 'ldap_host, ldap_port, ldap_tls, ldap_ssl',
@@ -186,6 +186,14 @@ return array(
                 'size' => '30',
                 'max' => '255',
                 'eval' => 'password',
+            )
+        ),
+        'ldap_sid' => array(
+            'exclude' => 1,
+            'label' => 'LLL:EXT:ig_ldap_sso_auth/Resources/Private/Language/locallang_db.xlf:tx_igldapssoauth_config.ldap_sid',
+            'config' => array(
+                'type' => 'check',
+                'default' => '0'
             )
         ),
         'group_membership' => array(

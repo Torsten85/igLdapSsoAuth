@@ -17,6 +17,7 @@ namespace Causal\IgLdapSsoAuth\Library;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Causal\IgLdapSsoAuth\Domain\Repository\Typo3GroupRepository;
 use Causal\IgLdapSsoAuth\Domain\Repository\Typo3UserRepository;
+use Causal\IgLdapSsoAuth\Utility\ActiveDirectoryUtility;
 
 /**
  * Class Authentication for the 'ig_ldap_sso_auth' extension.
@@ -173,7 +174,14 @@ class Authentication
         $typo3_users_pid = Configuration::getPid(static::$config['users']['mapping']);
 
         // Get TYPO3 user from username, DN and pid.
-        $typo3_user = static::getTypo3User($username, $userdn, $typo3_users_pid);
+        $ldapConfiguration = Configuration::getLdapConfiguration();
+        if ($ldapConfiguration['sid'] === true) {
+            $sid = ActiveDirectoryUtility::getObjectSID($ldapUser);
+        } else {
+            $sid = null;
+        }
+
+        $typo3_user = static::getTypo3User($username, $userdn, $typo3_users_pid, $sid);
         if ($typo3_user === null) {
             // Non-existing local users are not allowed to authenticate
             return false;
@@ -492,13 +500,14 @@ class Authentication
      * @param string $username
      * @param string $userDn
      * @param int|null $pid
+     * @param string $sid
      * @return array
      */
-    protected static function getTypo3User($username, $userDn, $pid = null)
+    protected static function getTypo3User($username, $userDn, $pid = null, $sid = null)
     {
         $user = null;
 
-        $typo3_users = Typo3UserRepository::fetch(static::$authenticationService->authInfo['db_user']['table'], 0, $pid, $username, $userDn);
+        $typo3_users = Typo3UserRepository::fetch(static::$authenticationService->authInfo['db_user']['table'], 0, $pid, $username, $userDn, $sid);
         if ($typo3_users) {
             if (Configuration::getValue('IfUserExist')) {
                 // Ensure every returned record is active
@@ -526,6 +535,10 @@ class Authentication
             $user['tstamp'] = $GLOBALS['EXEC_TIME'];
             $user['username'] = $username;
             $user['tx_igldapssoauth_dn'] = $userDn;
+
+            if ($sid) {
+                $user['tx_igldapssoauth_sid'] = $sid;
+            }
         }
 
         return $user;
@@ -564,10 +577,20 @@ class Authentication
             return array();
         }
 
+        $ldapConfiguration = Configuration::getLdapConfiguration();
+        $useSid = (bool) $ldapConfiguration['sid'];
+
         $typo3Groups = array();
 
         foreach ($ldapGroups as $ldapGroup) {
-            $existingTypo3Groups = Typo3GroupRepository::fetch($table, 0, $pid, $ldapGroup['dn']);
+
+            $sid = NULL;
+
+            if ($useSid) {
+                $sid = ActiveDirectoryUtility::getObjectSID($ldapGroup) ?: NULL;
+            }
+
+            $existingTypo3Groups = Typo3GroupRepository::fetch($table, 0, $pid, $ldapGroup['dn'], $sid);
 
             if (count($existingTypo3Groups) > 0) {
                 $typo3Group = $existingTypo3Groups[0];
@@ -618,10 +641,20 @@ class Authentication
             return array();
         }
 
+        $ldapConfiguration = Configuration::getLdapConfiguration();
+        $useSid = (bool) $ldapConfiguration['sid'];
+
         $typo3Users = array();
 
         foreach ($ldapUsers as $ldapUser) {
-            $existingTypo3Users = Typo3UserRepository::fetch($table, 0, $pid, null, $ldapUser['dn']);
+
+            $sid = NULL;
+
+            if ($useSid) {
+                $sid = ActiveDirectoryUtility::getObjectSID($ldapUser) ?: NULL;
+            }
+
+            $existingTypo3Users = Typo3UserRepository::fetch($table, 0, $pid, null, $ldapUser['dn'], $sid);
 
             if (count($existingTypo3Users) > 0) {
                 $typo3User = $existingTypo3Users[0];
@@ -708,6 +741,11 @@ class Authentication
             }
 
             $GLOBALS['TSFE'] = $backupTSFE;
+        }
+
+        $ldapConfiguration = Configuration::getLdapConfiguration();
+        if ($ldapConfiguration['sid'] === TRUE) {
+            $out['tx_igldapssoauth_sid'] = ActiveDirectoryUtility::getObjectSID($ldap);
         }
 
         return $out;
